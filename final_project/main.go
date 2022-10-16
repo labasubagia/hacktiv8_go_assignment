@@ -28,6 +28,15 @@ func main() {
 		userRouter.DELETE("", middlewares.Authentication(), userCtrl.Delete)
 	}
 
+	photoCtrl := controllers.NewPhotoController(db)
+	photoRouter := router.Group("/photos", middlewares.Authentication())
+	{
+		photoRouter.POST("", photoCtrl.Create)
+		photoRouter.GET("", photoCtrl.List)
+		photoRouter.PUT("/:photoId", photoCtrl.Update)
+		photoRouter.DELETE("/:photoId", photoCtrl.Delete)
+	}
+
 	if err := router.Run(fmt.Sprintf(":%v", os.Getenv("PORT"))); err != nil {
 		panic(err)
 	}

@@ -22,20 +22,20 @@ func NewUserController(db *gorm.DB) *userCtrl {
 }
 
 func (ctrl *userCtrl) Register(c *gin.Context) {
-	user := models.User{}
-	if err := c.ShouldBindJSON(&user); err != nil {
+	u := models.User{}
+	if err := c.ShouldBindJSON(&u); err != nil {
 		c.JSON(http.StatusBadRequest, err.Error())
 		return
 	}
-	if err := ctrl.db.Create(&user).Error; err != nil {
+	if err := ctrl.db.Create(&u).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, err.Error())
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{
-		"age":      user.Age,
-		"email":    user.Email,
-		"id":       user.ID,
-		"username": user.Username,
+	c.JSON(http.StatusOK, user{
+		Age:      &u.Age,
+		Email:    &u.Email,
+		ID:       &u.ID,
+		Username: &u.Username,
 	})
 }
 
@@ -88,26 +88,26 @@ func (ctrl *userCtrl) Update(c *gin.Context) {
 		return
 	}
 
-	user := models.User{}
-	if err := ctrl.db.First(&user, userID).Error; err != nil {
+	u := models.User{}
+	if err := ctrl.db.First(&u, userID).Error; err != nil {
 		c.JSON(http.StatusNotFound, err.Error())
 		return
 	}
 
-	user.Email = payload.Email
-	user.Username = payload.Username
+	u.Email = payload.Email
+	u.Username = payload.Username
 
-	if err := ctrl.db.Save(&user).Error; err != nil {
+	if err := ctrl.db.Save(&u).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"age":        user.Age,
-		"email":      user.Email,
-		"id":         user.ID,
-		"username":   user.Username,
-		"updated_at": user.UpdatedAt,
+	c.JSON(http.StatusOK, user{
+		Age:       &u.Age,
+		Email:     &u.Email,
+		ID:        &u.ID,
+		Username:  &u.Username,
+		UpdatedAt: &u.UpdatedAt,
 	})
 }
 
