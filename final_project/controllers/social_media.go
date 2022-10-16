@@ -22,13 +22,13 @@ func NewSocialMediaController(db *gorm.DB) *socialMediaCtrl {
 func (ctrl *socialMediaCtrl) Create(c *gin.Context) {
 	userData, ok := c.MustGet("userData").(jwt.MapClaims)
 	if !ok {
-		c.JSON(http.StatusUnauthorized, errors.New("user data invalid"))
+		c.JSON(http.StatusUnauthorized, errors.New("user data invalid").Error())
 		return
 	}
 
 	userID, ok := userData["id"].(float64)
 	if !ok {
-		c.JSON(http.StatusUnauthorized, errors.New("user id invalid"))
+		c.JSON(http.StatusUnauthorized, errors.New("user id invalid").Error())
 		return
 	}
 
@@ -57,13 +57,13 @@ func (ctrl *socialMediaCtrl) Create(c *gin.Context) {
 func (ctrl *socialMediaCtrl) List(c *gin.Context) {
 	userData, ok := c.MustGet("userData").(jwt.MapClaims)
 	if !ok {
-		c.JSON(http.StatusUnauthorized, errors.New("user data invalid"))
+		c.JSON(http.StatusUnauthorized, errors.New("user data invalid").Error())
 		return
 	}
 
 	userID, ok := userData["id"].(float64)
 	if !ok {
-		c.JSON(http.StatusUnauthorized, errors.New("user id invalid"))
+		c.JSON(http.StatusUnauthorized, errors.New("user id invalid").Error())
 		return
 	}
 
@@ -97,20 +97,20 @@ func (ctrl *socialMediaCtrl) List(c *gin.Context) {
 func (ctrl *socialMediaCtrl) Update(c *gin.Context) {
 	userData, ok := c.MustGet("userData").(jwt.MapClaims)
 	if !ok {
-		c.JSON(http.StatusUnauthorized, errors.New("user data invalid"))
+		c.JSON(http.StatusUnauthorized, errors.New("user data invalid").Error())
 		return
 	}
 
 	userID, ok := userData["id"].(float64)
 	if !ok {
-		c.JSON(http.StatusUnauthorized, errors.New("user id invalid"))
+		c.JSON(http.StatusUnauthorized, errors.New("user id invalid").Error())
 		return
 	}
 
 	IDStr := c.Param("socialMediaId")
 	ID, err := strconv.Atoi(IDStr)
 	if err != nil {
-		c.JSON(http.StatusUnauthorized, errors.New("social media id invalid"))
+		c.JSON(http.StatusUnauthorized, errors.New("social media id invalid").Error())
 		return
 	}
 
@@ -149,20 +149,20 @@ func (ctrl *socialMediaCtrl) Update(c *gin.Context) {
 func (ctrl *socialMediaCtrl) Delete(c *gin.Context) {
 	userData, ok := c.MustGet("userData").(jwt.MapClaims)
 	if !ok {
-		c.JSON(http.StatusUnauthorized, errors.New("user data invalid"))
+		c.JSON(http.StatusUnauthorized, errors.New("user data invalid").Error())
 		return
 	}
 
 	userID, ok := userData["id"].(float64)
 	if !ok {
-		c.JSON(http.StatusUnauthorized, errors.New("user id invalid"))
+		c.JSON(http.StatusUnauthorized, errors.New("user id invalid").Error())
 		return
 	}
 
 	IDStr := c.Param("socialMediaId")
 	ID, err := strconv.Atoi(IDStr)
 	if err != nil {
-		c.JSON(http.StatusUnauthorized, errors.New("social media id invalid"))
+		c.JSON(http.StatusUnauthorized, errors.New("social media id invalid").Error())
 		return
 	}
 

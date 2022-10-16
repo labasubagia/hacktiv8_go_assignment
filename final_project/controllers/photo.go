@@ -24,13 +24,13 @@ func NewPhotoController(db *gorm.DB) *photoCtrl {
 func (ctrl *photoCtrl) Create(c *gin.Context) {
 	userData, ok := c.MustGet("userData").(jwt.MapClaims)
 	if !ok {
-		c.JSON(http.StatusUnauthorized, errors.New("user data invalid"))
+		c.JSON(http.StatusUnauthorized, errors.New("user data invalid").Error())
 		return
 	}
 
 	userID, ok := userData["id"].(float64)
 	if !ok {
-		c.JSON(http.StatusUnauthorized, errors.New("user id invalid"))
+		c.JSON(http.StatusUnauthorized, errors.New("user id invalid").Error())
 		return
 	}
 
@@ -60,13 +60,13 @@ func (ctrl *photoCtrl) Create(c *gin.Context) {
 func (ctrl *photoCtrl) List(c *gin.Context) {
 	userData, ok := c.MustGet("userData").(jwt.MapClaims)
 	if !ok {
-		c.JSON(http.StatusUnauthorized, errors.New("user data invalid"))
+		c.JSON(http.StatusUnauthorized, errors.New("user data invalid").Error())
 		return
 	}
 
 	userID, ok := userData["id"].(float64)
 	if !ok {
-		c.JSON(http.StatusUnauthorized, errors.New("user id invalid"))
+		c.JSON(http.StatusUnauthorized, errors.New("user id invalid").Error())
 		return
 	}
 
@@ -99,20 +99,20 @@ func (ctrl *photoCtrl) List(c *gin.Context) {
 func (ctrl *photoCtrl) Update(c *gin.Context) {
 	userData, ok := c.MustGet("userData").(jwt.MapClaims)
 	if !ok {
-		c.JSON(http.StatusUnauthorized, errors.New("user data invalid"))
+		c.JSON(http.StatusUnauthorized, errors.New("user data invalid").Error())
 		return
 	}
 
 	userID, ok := userData["id"].(float64)
 	if !ok {
-		c.JSON(http.StatusUnauthorized, errors.New("user id invalid"))
+		c.JSON(http.StatusUnauthorized, errors.New("user id invalid").Error())
 		return
 	}
 
 	IDStr := c.Param("photoId")
 	ID, err := strconv.Atoi(IDStr)
 	if err != nil {
-		c.JSON(http.StatusUnauthorized, errors.New("photo id invalid"))
+		c.JSON(http.StatusUnauthorized, errors.New("photo id invalid").Error())
 		return
 	}
 
@@ -154,20 +154,20 @@ func (ctrl *photoCtrl) Update(c *gin.Context) {
 func (ctrl *photoCtrl) Delete(c *gin.Context) {
 	userData, ok := c.MustGet("userData").(jwt.MapClaims)
 	if !ok {
-		c.JSON(http.StatusUnauthorized, errors.New("user data invalid"))
+		c.JSON(http.StatusUnauthorized, errors.New("user data invalid").Error())
 		return
 	}
 
 	userID, ok := userData["id"].(float64)
 	if !ok {
-		c.JSON(http.StatusUnauthorized, errors.New("user id invalid"))
+		c.JSON(http.StatusUnauthorized, errors.New("user id invalid").Error())
 		return
 	}
 
 	IDStr := c.Param("photoId")
 	ID, err := strconv.Atoi(IDStr)
 	if err != nil {
-		c.JSON(http.StatusUnauthorized, errors.New("photo id invalid"))
+		c.JSON(http.StatusUnauthorized, errors.New("photo id invalid").Error())
 		return
 	}
 

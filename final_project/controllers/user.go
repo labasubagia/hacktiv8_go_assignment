@@ -69,13 +69,13 @@ func (ctrl *userCtrl) Login(c *gin.Context) {
 func (ctrl *userCtrl) Update(c *gin.Context) {
 	userData, ok := c.MustGet("userData").(jwt.MapClaims)
 	if !ok {
-		c.JSON(http.StatusUnauthorized, errors.New("user data invalid"))
+		c.JSON(http.StatusUnauthorized, errors.New("user data invalid").Error())
 		return
 	}
 
 	userID, ok := userData["id"].(float64)
 	if !ok {
-		c.JSON(http.StatusUnauthorized, errors.New("user id invalid"))
+		c.JSON(http.StatusUnauthorized, errors.New("user id invalid").Error())
 		return
 	}
 
@@ -114,13 +114,13 @@ func (ctrl *userCtrl) Update(c *gin.Context) {
 func (ctrl *userCtrl) Delete(c *gin.Context) {
 	userData, ok := c.MustGet("userData").(jwt.MapClaims)
 	if !ok {
-		c.JSON(http.StatusUnauthorized, errors.New("user data invalid"))
+		c.JSON(http.StatusUnauthorized, errors.New("user data invalid").Error())
 		return
 	}
 
 	userID, ok := userData["id"].(float64)
 	if !ok {
-		c.JSON(http.StatusUnauthorized, errors.New("user id invalid"))
+		c.JSON(http.StatusUnauthorized, errors.New("user id invalid").Error())
 		return
 	}
 

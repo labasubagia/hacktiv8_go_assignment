@@ -23,13 +23,13 @@ func (ctrl *commentCtrl) Create(c *gin.Context) {
 
 	userData, ok := c.MustGet("userData").(jwt.MapClaims)
 	if !ok {
-		c.JSON(http.StatusUnauthorized, errors.New("user data invalid"))
+		c.JSON(http.StatusUnauthorized, errors.New("user data invalid").Error())
 		return
 	}
 
 	userID, ok := userData["id"].(float64)
 	if !ok {
-		c.JSON(http.StatusUnauthorized, errors.New("user id invalid"))
+		c.JSON(http.StatusUnauthorized, errors.New("user id invalid").Error())
 		return
 	}
 
@@ -58,13 +58,13 @@ func (ctrl *commentCtrl) Create(c *gin.Context) {
 func (ctrl *commentCtrl) List(c *gin.Context) {
 	userData, ok := c.MustGet("userData").(jwt.MapClaims)
 	if !ok {
-		c.JSON(http.StatusUnauthorized, errors.New("user data invalid"))
+		c.JSON(http.StatusUnauthorized, errors.New("user data invalid").Error())
 		return
 	}
 
 	userID, ok := userData["id"].(float64)
 	if !ok {
-		c.JSON(http.StatusUnauthorized, errors.New("user id invalid"))
+		c.JSON(http.StatusUnauthorized, errors.New("user id invalid").Error())
 		return
 	}
 
@@ -104,20 +104,20 @@ func (ctrl *commentCtrl) List(c *gin.Context) {
 func (ctrl *commentCtrl) Update(c *gin.Context) {
 	userData, ok := c.MustGet("userData").(jwt.MapClaims)
 	if !ok {
-		c.JSON(http.StatusUnauthorized, errors.New("user data invalid"))
+		c.JSON(http.StatusUnauthorized, errors.New("user data invalid").Error())
 		return
 	}
 
 	userID, ok := userData["id"].(float64)
 	if !ok {
-		c.JSON(http.StatusUnauthorized, errors.New("user id invalid"))
+		c.JSON(http.StatusUnauthorized, errors.New("user id invalid").Error())
 		return
 	}
 
 	IDStr := c.Param("commentId")
 	ID, err := strconv.Atoi(IDStr)
 	if err != nil {
-		c.JSON(http.StatusUnauthorized, errors.New("comment id invalid"))
+		c.JSON(http.StatusUnauthorized, errors.New("comment id invalid").Error())
 		return
 	}
 
@@ -153,20 +153,20 @@ func (ctrl *commentCtrl) Update(c *gin.Context) {
 func (ctrl *commentCtrl) Delete(c *gin.Context) {
 	userData, ok := c.MustGet("userData").(jwt.MapClaims)
 	if !ok {
-		c.JSON(http.StatusUnauthorized, errors.New("user data invalid"))
+		c.JSON(http.StatusUnauthorized, errors.New("user data invalid").Error())
 		return
 	}
 
 	userID, ok := userData["id"].(float64)
 	if !ok {
-		c.JSON(http.StatusUnauthorized, errors.New("user id invalid"))
+		c.JSON(http.StatusUnauthorized, errors.New("user id invalid").Error())
 		return
 	}
 
 	IDStr := c.Param("commentId")
 	ID, err := strconv.Atoi(IDStr)
 	if err != nil {
-		c.JSON(http.StatusUnauthorized, errors.New("comment id invalid"))
+		c.JSON(http.StatusUnauthorized, errors.New("comment id invalid").Error())
 		return
 	}
 
