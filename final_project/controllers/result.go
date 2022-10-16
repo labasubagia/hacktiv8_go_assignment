@@ -38,8 +38,8 @@ type socialMedia struct {
 	ID        *uint      `json:"id,omitempty"`
 	CreatedAt *time.Time `json:"created_at,omitempty"`
 	UpdatedAt *time.Time `json:"updated_at,omitempty"`
-	Name      *string    `json:"name"`
-	URL       *string    `json:"social_media_url"`
-	UserID    *uint      `json:"user_id"`
-	User      *user      `json:"user"`
+	Name      *string    `json:"name,omitempty"`
+	URL       *string    `json:"social_media_url,omitempty"`
+	UserID    *uint      `json:"user_id,omitempty"`
+	User      *user      `json:"user,omitempty"`
 }
