@@ -22,3 +22,14 @@ type photo struct {
 	User      *user      `json:"user,omitempty"`
 	Caption   *string    `json:"caption,omitempty"`
 }
+
+type comment struct {
+	ID        *uint      `json:"id,omitempty"`
+	CreatedAt *time.Time `json:"created_at,omitempty"`
+	UpdatedAt *time.Time `json:"updated_at,omitempty"`
+	UserID    *uint      `json:"user_id,omitempty"`
+	PhotoID   *uint      `json:"photo_id,omitempty"`
+	Message   *string    `json:"message,omitempty"`
+	User      *user      `json:"user,omitempty"`
+	Photo     *photo     `json:"photo,omitempty"`
+}

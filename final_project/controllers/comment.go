@@ -11,17 +11,16 @@ import (
 	"gorm.io/gorm"
 )
 
-type photoCtrl struct {
+type commentCtrl struct {
 	db *gorm.DB
 }
 
-func NewPhotoController(db *gorm.DB) *photoCtrl {
-	return &photoCtrl{
-		db: db,
-	}
+func NewCommentController(db *gorm.DB) *commentCtrl {
+	return &commentCtrl{db: db}
 }
 
-func (ctrl *photoCtrl) Create(c *gin.Context) {
+func (ctrl *commentCtrl) Create(c *gin.Context) {
+
 	userData, ok := c.MustGet("userData").(jwt.MapClaims)
 	if !ok {
 		c.JSON(http.StatusUnauthorized, errors.New("user data invalid"))
@@ -34,30 +33,29 @@ func (ctrl *photoCtrl) Create(c *gin.Context) {
 		return
 	}
 
-	p := models.Photo{}
-	if err := c.ShouldBindJSON(&p); err != nil {
+	cm := models.Comment{}
+	if err := c.ShouldBindJSON(&cm); err != nil {
 		c.JSON(http.StatusBadRequest, err.Error())
 		return
 	}
 
-	p.UserID = uint(userID)
+	cm.UserID = uint(userID)
 
-	if err := ctrl.db.Create(&p).Error; err != nil {
+	if err := ctrl.db.Create(&cm).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	c.JSON(http.StatusCreated, photo{
-		ID:        &p.ID,
-		Title:     &p.Title,
-		Caption:   &p.Caption,
-		URL:       &p.URL,
-		UserID:    &p.UserID,
-		CreatedAt: &p.CreatedAt,
+	c.JSON(http.StatusCreated, comment{
+		ID:        &cm.ID,
+		Message:   &cm.Message,
+		PhotoID:   &cm.PhotoID,
+		UserID:    &cm.UserID,
+		CreatedAt: &cm.CreatedAt,
 	})
 }
 
-func (ctrl *photoCtrl) List(c *gin.Context) {
+func (ctrl *commentCtrl) List(c *gin.Context) {
 	userData, ok := c.MustGet("userData").(jwt.MapClaims)
 	if !ok {
 		c.JSON(http.StatusUnauthorized, errors.New("user data invalid"))
@@ -70,25 +68,32 @@ func (ctrl *photoCtrl) List(c *gin.Context) {
 		return
 	}
 
-	photos := []models.Photo{}
-	if err := ctrl.db.Preload("User").Where("user_id=?", userID).Find(&photos).Error; err != nil {
+	cms := []models.Comment{}
+	if err := ctrl.db.Preload("User").Preload("Photo").Where("user_id=?", userID).Find(&cms).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	result := []photo{}
-	for _, p := range photos {
-		result = append(result, photo{
-			ID:        &p.ID,
-			Title:     &p.Title,
-			URL:       &p.URL,
-			UserID:    &p.UserID,
-			CreatedAt: &p.CreatedAt,
-			UpdatedAt: &p.UpdatedAt,
-			Caption:   &p.Caption,
+	result := []comment{}
+	for _, cm := range cms {
+		result = append(result, comment{
+			ID:        &cm.ID,
+			UserID:    &cm.UserID,
+			CreatedAt: &cm.CreatedAt,
+			UpdatedAt: &cm.UpdatedAt,
+			Message:   &cm.Message,
+			PhotoID:   &cm.PhotoID,
 			User: &user{
-				Username: &p.User.Username,
-				Email:    &p.User.Email,
+				ID:       &cm.User.ID,
+				Username: &cm.User.Username,
+				Email:    &cm.User.Email,
+			},
+			Photo: &photo{
+				ID:      &cm.Photo.ID,
+				Title:   &cm.Photo.Title,
+				Caption: &cm.Photo.Caption,
+				URL:     &cm.Photo.URL,
+				UserID:  &cm.Photo.UserID,
 			},
 		})
 	}
@@ -96,7 +101,7 @@ func (ctrl *photoCtrl) List(c *gin.Context) {
 	c.JSON(http.StatusCreated, result)
 }
 
-func (ctrl *photoCtrl) Update(c *gin.Context) {
+func (ctrl *commentCtrl) Update(c *gin.Context) {
 	userData, ok := c.MustGet("userData").(jwt.MapClaims)
 	if !ok {
 		c.JSON(http.StatusUnauthorized, errors.New("user data invalid"))
@@ -109,49 +114,43 @@ func (ctrl *photoCtrl) Update(c *gin.Context) {
 		return
 	}
 
-	IDStr := c.Param("photoId")
+	IDStr := c.Param("commentId")
 	ID, err := strconv.Atoi(IDStr)
 	if err != nil {
-		c.JSON(http.StatusUnauthorized, errors.New("photo id invalid"))
+		c.JSON(http.StatusUnauthorized, errors.New("comment id invalid"))
 		return
 	}
 
 	var payload struct {
-		Title   string `json:"title"`
-		Caption string `json:"caption"`
-		URL     string `json:"photo_url"`
+		Message string `json:"message"`
 	}
 	if err := c.ShouldBindJSON(&payload); err != nil {
 		c.JSON(http.StatusBadRequest, err.Error())
 		return
 	}
 
-	p := models.Photo{}
-	if err := ctrl.db.Where("id=? AND user_id=?", ID, userID).First(&p).Error; err != nil {
+	cm := models.Comment{}
+	if err := ctrl.db.Where("id=? AND user_id=?", ID, userID).First(&cm).Error; err != nil {
 		c.JSON(http.StatusNotFound, err.Error())
 		return
 	}
 
-	p.Caption = payload.Caption
-	p.Title = payload.Title
-	p.URL = payload.URL
+	cm.Message = payload.Message
 
-	if err := ctrl.db.Save(&p).Error; err != nil {
+	if err := ctrl.db.Save(&cm).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	c.JSON(http.StatusCreated, photo{
-		ID:        &p.ID,
-		Title:     &p.Title,
-		URL:       &p.URL,
-		UserID:    &p.UserID,
-		UpdatedAt: &p.UpdatedAt,
-		Caption:   &p.Caption,
+	c.JSON(http.StatusCreated, comment{
+		ID:        &cm.ID,
+		UserID:    &cm.UserID,
+		Message:   &cm.Message,
+		UpdatedAt: &cm.UpdatedAt,
 	})
 }
 
-func (ctrl *photoCtrl) Delete(c *gin.Context) {
+func (ctrl *commentCtrl) Delete(c *gin.Context) {
 	userData, ok := c.MustGet("userData").(jwt.MapClaims)
 	if !ok {
 		c.JSON(http.StatusUnauthorized, errors.New("user data invalid"))
@@ -164,19 +163,19 @@ func (ctrl *photoCtrl) Delete(c *gin.Context) {
 		return
 	}
 
-	IDStr := c.Param("photoId")
+	IDStr := c.Param("commentId")
 	ID, err := strconv.Atoi(IDStr)
 	if err != nil {
-		c.JSON(http.StatusUnauthorized, errors.New("photo id invalid"))
+		c.JSON(http.StatusUnauthorized, errors.New("comment id invalid"))
 		return
 	}
 
-	if err := ctrl.db.Select("Comment").Where("id=? AND user_id=?", ID, userID).Delete(&models.Photo{}).Error; err != nil {
+	if err := ctrl.db.Debug().Where("id=? AND user_id=?", ID, userID).Delete(&models.Comment{}).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, err.Error())
 		return
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"message": "Your photo has been successfully deleted",
+		"message": "Your comment has been successfully deleted",
 	})
 }

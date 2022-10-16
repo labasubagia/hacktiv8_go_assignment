@@ -37,6 +37,15 @@ func main() {
 		photoRouter.DELETE("/:photoId", photoCtrl.Delete)
 	}
 
+	commentCtrl := controllers.NewCommentController(db)
+	commentRouter := router.Group("/comments", middlewares.Authentication())
+	{
+		commentRouter.POST("", commentCtrl.Create)
+		commentRouter.GET("", commentCtrl.List)
+		commentRouter.PUT("/:commentId", commentCtrl.Update)
+		commentRouter.DELETE("/:commentId", commentCtrl.Delete)
+	}
+
 	if err := router.Run(fmt.Sprintf(":%v", os.Getenv("PORT"))); err != nil {
 		panic(err)
 	}
