@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Status</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body>
+    <div class="container mx-auto">
+        <p class="text-xl p-4 bg-blue-400">Check Status</p>
+        
+        <div class="mt-8 flex">
+            <div>
+                <p class="px-4 text-lg">Water Status</p>
+                <div class="p-4" id="statusWater"></div>
+            </div>
+            <div>
+                <p class="px-4 text-lg">Wind Status</p>
+                <div class="p-4" id="statusWind"></div>
+            </div>
+        </div>
+    </div>
+</body>
+
+<script>
+    const fetchStatus = async () => {
+        const res = await fetch('/api/status')
+        const data = await res.json()
+        return data
+    }
+
+    const wait = () => new Promise(resolve => setTimeout(resolve, 5000))
+
+    const autoReload = async () => {
+        while (true) {
+            const data = await fetchStatus()
+            updateUI(data)
+            await wait()
+        }
+    }
+
+    const updateUI = (data) => {
+        const waterDom = document.getElementById('statusWater')
+        waterStatus = getWaterStatus(data.status.water)
+        waterDom.innerHTML = `
+            <div class="p-5 rounded ${waterStatus.class}"> 
+                ${waterStatus.n} Meter pada Level ${waterStatus.text}
+            </div>
+        `
+
+        const windDom = document.getElementById('statusWind')
+        windStatus = getWindStatus(data.status.wind)
+        windDom.innerHTML = `
+            <div class="p-5 rounded ${windStatus.class}">
+                ${windStatus.n} Meter/detik pada Level ${windStatus.text}
+            </div>
+        `
+    }
+
+    const getWaterStatus = (value) => {
+        if (value <= 5) {
+            return {n: value, text: 'Aman', class: 'bg-green-500'}
+        }
+        if (value <= 8 ) {
+            return {n: value, text: 'Siaga', class: 'bg-yellow-500'}
+        }
+        if (value > 8 ) {
+            return {n: value, text: 'Bahaya', class: 'bg-red-500'}
+        }
+    }
+
+    const getWindStatus = (value) => {
+        if (value <= 6) {
+            return {n: value, text: 'Aman', class: 'bg-green-500'}
+        }
+        if (value <= 15 ) {
+            return {n: value, text: 'Siaga', class: 'bg-yellow-500'}
+        }
+        if (value > 15 ) {
+            return {n: value, text: 'Bahaya', class: 'bg-red-500'}
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', async () => {
+        autoReload()
+    })
+</script>
+</html>
