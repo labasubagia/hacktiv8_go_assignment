@@ -31,7 +31,7 @@ func (ctrl *userCtrl) Register(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, err.Error())
 		return
 	}
-	c.JSON(http.StatusOK, user{
+	c.JSON(http.StatusCreated, user{
 		Age:      &u.Age,
 		Email:    &u.Email,
 		ID:       &u.ID,
