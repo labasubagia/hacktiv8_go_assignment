@@ -59,7 +59,9 @@ func main() {
 func jsonUpdateScheduler() error {
 	for {
 		time.Sleep(time.Second * 15)
-		writeStatusToJSON()
+		if err := writeStatusToJSON(); err != nil {
+			return err
+		}
 	}
 }
 
