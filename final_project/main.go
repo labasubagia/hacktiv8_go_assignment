@@ -46,6 +46,15 @@ func main() {
 		commentRouter.DELETE("/:commentId", commentCtrl.Delete)
 	}
 
+	socialMediaCtrl := controllers.NewSocialMediaController(db)
+	socialMediaRouter := router.Group("/socialmedias", middlewares.Authentication())
+	{
+		socialMediaRouter.POST("", socialMediaCtrl.Create)
+		socialMediaRouter.GET("", socialMediaCtrl.List)
+		socialMediaRouter.PUT("/:socialMediaId", socialMediaCtrl.Update)
+		socialMediaRouter.DELETE("/:socialMediaId", socialMediaCtrl.Delete)
+	}
+
 	if err := router.Run(fmt.Sprintf(":%v", os.Getenv("PORT"))); err != nil {
 		panic(err)
 	}

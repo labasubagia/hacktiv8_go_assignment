@@ -124,7 +124,7 @@ func (ctrl *userCtrl) Delete(c *gin.Context) {
 		return
 	}
 
-	if err := ctrl.db.Debug().Delete(&models.User{}, userID).Error; err != nil {
+	if err := ctrl.db.Delete(&models.User{}, userID).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, err.Error())
 		return
 	}

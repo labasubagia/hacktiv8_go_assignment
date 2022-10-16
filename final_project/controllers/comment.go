@@ -170,7 +170,7 @@ func (ctrl *commentCtrl) Delete(c *gin.Context) {
 		return
 	}
 
-	if err := ctrl.db.Debug().Where("id=? AND user_id=?", ID, userID).Delete(&models.Comment{}).Error; err != nil {
+	if err := ctrl.db.Where("id=? AND user_id=?", ID, userID).Delete(&models.Comment{}).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, err.Error())
 		return
 	}
