@@ -1,7 +1,7 @@
 package controllers
 
 import (
-	"errors"
+	"final_project/dto"
 	"final_project/models"
 	"net/http"
 	"strconv"
@@ -23,30 +23,30 @@ func (ctrl *commentCtrl) Create(c *gin.Context) {
 
 	userData, ok := c.MustGet("userData").(jwt.MapClaims)
 	if !ok {
-		c.JSON(http.StatusUnauthorized, errors.New("user data invalid").Error())
+		c.JSON(http.StatusUnauthorized, dto.Response{Error: "invalid user id"})
 		return
 	}
 
 	userID, ok := userData["id"].(float64)
 	if !ok {
-		c.JSON(http.StatusUnauthorized, errors.New("user id invalid").Error())
+		c.JSON(http.StatusUnauthorized, dto.Response{Error: "invalid user id"})
 		return
 	}
 
 	cm := models.Comment{}
 	if err := c.ShouldBindJSON(&cm); err != nil {
-		c.JSON(http.StatusBadRequest, err.Error())
+		c.JSON(http.StatusBadRequest, dto.Response{Error: "invalid payload"})
 		return
 	}
 
 	cm.UserID = uint(userID)
 
 	if err := ctrl.db.Create(&cm).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, err.Error())
+		c.JSON(http.StatusInternalServerError, dto.Response{Error: "failed create comment"})
 		return
 	}
 
-	c.JSON(http.StatusCreated, comment{
+	c.JSON(http.StatusCreated, dto.Comment{
 		ID:        &cm.ID,
 		Message:   &cm.Message,
 		PhotoID:   &cm.PhotoID,
@@ -56,39 +56,29 @@ func (ctrl *commentCtrl) Create(c *gin.Context) {
 }
 
 func (ctrl *commentCtrl) List(c *gin.Context) {
-	userData, ok := c.MustGet("userData").(jwt.MapClaims)
-	if !ok {
-		c.JSON(http.StatusUnauthorized, errors.New("user data invalid").Error())
+
+	comments := []models.Comment{}
+	if err := ctrl.db.Preload("User").Preload("Photo").Find(&comments).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, dto.Response{Error: "failed get comment"})
 		return
 	}
 
-	userID, ok := userData["id"].(float64)
-	if !ok {
-		c.JSON(http.StatusUnauthorized, errors.New("user id invalid").Error())
-		return
-	}
-
-	cms := []models.Comment{}
-	if err := ctrl.db.Preload("User").Preload("Photo").Where("user_id=?", userID).Find(&cms).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, err.Error())
-		return
-	}
-
-	result := []comment{}
-	for _, cm := range cms {
-		result = append(result, comment{
+	result := []dto.Comment{}
+	for _, comment := range comments {
+		cm := comment
+		result = append(result, dto.Comment{
 			ID:        &cm.ID,
 			UserID:    &cm.UserID,
 			CreatedAt: &cm.CreatedAt,
 			UpdatedAt: &cm.UpdatedAt,
 			Message:   &cm.Message,
 			PhotoID:   &cm.PhotoID,
-			User: &user{
+			User: &dto.User{
 				ID:       &cm.User.ID,
 				Username: &cm.User.Username,
 				Email:    &cm.User.Email,
 			},
-			Photo: &photo{
+			Photo: &dto.Photo{
 				ID:      &cm.Photo.ID,
 				Title:   &cm.Photo.Title,
 				Caption: &cm.Photo.Caption,
@@ -98,26 +88,26 @@ func (ctrl *commentCtrl) List(c *gin.Context) {
 		})
 	}
 
-	c.JSON(http.StatusCreated, result)
+	c.JSON(http.StatusCreated, dto.Response{Data: result})
 }
 
 func (ctrl *commentCtrl) Update(c *gin.Context) {
 	userData, ok := c.MustGet("userData").(jwt.MapClaims)
 	if !ok {
-		c.JSON(http.StatusUnauthorized, errors.New("user data invalid").Error())
+		c.JSON(http.StatusUnauthorized, dto.Response{Error: "invalid user id"})
 		return
 	}
 
 	userID, ok := userData["id"].(float64)
 	if !ok {
-		c.JSON(http.StatusUnauthorized, errors.New("user id invalid").Error())
+		c.JSON(http.StatusUnauthorized, dto.Response{Error: "invalid user id"})
 		return
 	}
 
 	IDStr := c.Param("commentId")
 	ID, err := strconv.Atoi(IDStr)
 	if err != nil {
-		c.JSON(http.StatusUnauthorized, errors.New("comment id invalid").Error())
+		c.JSON(http.StatusUnauthorized, dto.Response{Error: "invalid comment id"})
 		return
 	}
 
@@ -125,57 +115,60 @@ func (ctrl *commentCtrl) Update(c *gin.Context) {
 		Message string `json:"message"`
 	}
 	if err := c.ShouldBindJSON(&payload); err != nil {
-		c.JSON(http.StatusBadRequest, err.Error())
+		c.JSON(http.StatusBadRequest, dto.Response{Error: "invalid payload"})
 		return
 	}
 
 	cm := models.Comment{}
 	if err := ctrl.db.Where("id=? AND user_id=?", ID, userID).First(&cm).Error; err != nil {
-		c.JSON(http.StatusNotFound, err.Error())
+		c.JSON(http.StatusNotFound, dto.Response{Error: "failed get comment"})
 		return
 	}
 
 	cm.Message = payload.Message
 
 	if err := ctrl.db.Save(&cm).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, err.Error())
+		c.JSON(http.StatusInternalServerError, dto.Response{Error: "failed update comment"})
 		return
 	}
 
-	c.JSON(http.StatusCreated, comment{
-		ID:        &cm.ID,
-		UserID:    &cm.UserID,
-		Message:   &cm.Message,
-		UpdatedAt: &cm.UpdatedAt,
+	c.JSON(http.StatusCreated, dto.Response{
+		Data: dto.Comment{
+			ID:        &cm.ID,
+			UserID:    &cm.UserID,
+			Message:   &cm.Message,
+			UpdatedAt: &cm.UpdatedAt,
+		},
+		Message: "Success update comment",
 	})
 }
 
 func (ctrl *commentCtrl) Delete(c *gin.Context) {
 	userData, ok := c.MustGet("userData").(jwt.MapClaims)
 	if !ok {
-		c.JSON(http.StatusUnauthorized, errors.New("user data invalid").Error())
+		c.JSON(http.StatusUnauthorized, dto.Response{Error: "invalid user id"})
 		return
 	}
 
 	userID, ok := userData["id"].(float64)
 	if !ok {
-		c.JSON(http.StatusUnauthorized, errors.New("user id invalid").Error())
+		c.JSON(http.StatusUnauthorized, dto.Response{Error: "invalid user id"})
 		return
 	}
 
 	IDStr := c.Param("commentId")
 	ID, err := strconv.Atoi(IDStr)
 	if err != nil {
-		c.JSON(http.StatusUnauthorized, errors.New("comment id invalid").Error())
+		c.JSON(http.StatusUnauthorized, dto.Response{Error: "invalid comment id"})
 		return
 	}
 
-	if err := ctrl.db.Where("id=? AND user_id=?", ID, userID).Delete(&models.Comment{}).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, err.Error())
+	if err := ctrl.db.Unscoped().Where("id=? AND user_id=?", ID, userID).Delete(&models.Comment{}).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, dto.Response{Error: "failed delete comment"})
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"message": "Your comment has been successfully deleted",
+	c.JSON(http.StatusOK, dto.Response{
+		Message: "Your comment has been successfully deleted",
 	})
 }

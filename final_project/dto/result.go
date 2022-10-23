@@ -1,8 +1,10 @@
-package controllers
+package dto
 
-import "time"
+import (
+	"time"
+)
 
-type user struct {
+type User struct {
 	ID        *uint      `json:"id,omitempty"`
 	CreatedAt *time.Time `json:"created_at,omitempty"`
 	UpdatedAt *time.Time `json:"updated_at,omitempty"`
@@ -12,34 +14,46 @@ type user struct {
 	Age       *uint      `json:"age,omitempty"`
 }
 
-type photo struct {
+type Photo struct {
 	ID        *uint      `json:"id,omitempty"`
 	CreatedAt *time.Time `json:"created_at,omitempty"`
 	UpdatedAt *time.Time `json:"updated_at,omitempty"`
 	Title     *string    `json:"title,omitempty"`
 	URL       *string    `json:"photo_url,omitempty"`
 	UserID    *uint      `json:"user_id,omitempty"`
-	User      *user      `json:"user,omitempty"`
+	User      *User      `json:"user,omitempty"`
 	Caption   *string    `json:"caption,omitempty"`
 }
 
-type comment struct {
+type Comment struct {
 	ID        *uint      `json:"id,omitempty"`
 	CreatedAt *time.Time `json:"created_at,omitempty"`
 	UpdatedAt *time.Time `json:"updated_at,omitempty"`
 	UserID    *uint      `json:"user_id,omitempty"`
 	PhotoID   *uint      `json:"photo_id,omitempty"`
 	Message   *string    `json:"message,omitempty"`
-	User      *user      `json:"user,omitempty"`
-	Photo     *photo     `json:"photo,omitempty"`
+	User      *User      `json:"user,omitempty"`
+	Photo     *Photo     `json:"photo,omitempty"`
 }
 
-type socialMedia struct {
+type SocialMedia struct {
 	ID        *uint      `json:"id,omitempty"`
 	CreatedAt *time.Time `json:"created_at,omitempty"`
 	UpdatedAt *time.Time `json:"updated_at,omitempty"`
 	Name      *string    `json:"name,omitempty"`
 	URL       *string    `json:"social_media_url,omitempty"`
 	UserID    *uint      `json:"user_id,omitempty"`
-	User      *user      `json:"user,omitempty"`
+	User      *User      `json:"user,omitempty"`
+}
+
+type FieldValidationError struct {
+	Field   string `json:"field"`
+	Message string `json:"message"`
+}
+
+type Response struct {
+	Data            any                    `json:"data"`
+	ValidationError []FieldValidationError `json:"validation_error"`
+	Error           string                 `json:"error"`
+	Message         string                 `json:"message"`
 }

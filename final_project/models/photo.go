@@ -9,7 +9,7 @@ type Photo struct {
 	gorm.Model
 	Title   string `gorm:"not null" json:"title" validate:"required"`
 	Caption string `json:"caption"`
-	URL     string `gorm:"not null" json:"photo_url" validate:"required"`
+	URL     string `gorm:"not null" json:"photo_url" validate:"required,url"`
 	UserID  uint   `json:"user_id"`
 	User    *User  `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"user"`
 }
